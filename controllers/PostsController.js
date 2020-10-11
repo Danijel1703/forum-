@@ -3,13 +3,14 @@ const mongoose = require('mongoose');
 const Post = require('./../models/PostModel');
 const { json } = require('body-parser');
 const { update, findByIdAndDelete, findByIdAndUpdate } = require('./../models/PostModel');
-const getAllPosts = async (req,res) => {
+const { viewHome } = require('./HomeController');
+
+
+const viewPosts = async (req,res) => {
     try {
         const allPosts = await Post.find();
-        res.status(200).json({
-            posts : {
-                allPosts
-            }
+        res.render(('PostsView'),{
+            allPosts : allPosts
         });
     }catch(err){
     }
@@ -105,7 +106,7 @@ const updateComment = async (req,res) => {
 
 }
 
-module.exports.getAllPosts = getAllPosts;
+module.exports.viewPosts = viewPosts;
 module.exports.newPost = newPost;
 module.exports.deletePost = deletePost;
 module.exports.updatePost = updatePost;

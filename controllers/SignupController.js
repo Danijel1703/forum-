@@ -4,10 +4,24 @@ const bcrypt = require('bcryptjs');
 const User = require('./../models/UserModel');
 const ValidationController = require('./ValidationController');
 
+const viewSignup = async (req,res) => {
+        try {
+             if(req.cookies['currentUser']){
+                     res.send('You are alreday logged in');
+             }else {
+             res.render('SignupView',{
+                     message : ""
+             });
+        }   
+        } catch (err) {
+             res.send(err.message);
+        }
+}
+
 const newUser = async (req,res) => {
         try {
-        const {error} = ValidationController.registerValidation(req.body);
-        if(error){
+        const {err} = ValidationController.registerValidation(req.body);
+        if(err){
                 res.status(400).send(err.message);
         }
         const salt = await bcrypt.genSalt(10);
@@ -15,17 +29,21 @@ const newUser = async (req,res) => {
         const emailExists = await User.findOne({email : req.body.email});
         const usernameExists = await User.findOne({username : req.body.username});
         if(emailExists){
-                res.status(400).send('Email already in use.');
+                res.render('SignupView',{
+                        message : "Email already in use"
+                });
         }else if(usernameExists){
-                res.status(400).send('Username already in use.');
+                res.render('SignupView',{
+                        message : "Username already in use"
+                });
         }else{
                 const newUser = await User.create({
-                        firstname : req.body.firstname,
-                        lastname : req.body.lastname,
-                        username : req.body.username,
+                        firstname : req.body.firstname.trim(),
+                        lastname : req.body.lastname.trim(),
+                        username : req.body.username.trim(),
                         password : hashedPassword,
-                        email : req.body.email,
-                        college : req.body.college
+                        email : req.body.email.trim(),
+                        college : req.body.college.trim()
                 });
                 res.status(200).send('Registration successful.');
         }               
@@ -35,3 +53,4 @@ const newUser = async (req,res) => {
 }
 
 module.exports.newUser = newUser;
+module.exports.viewSignup = viewSignup;

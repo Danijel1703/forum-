@@ -1,0 +1,34 @@
+<html>
+    <body>
+    <form method="POST" action="signup">
+        <h3>Firstname:</h3>    
+        <input type="text" name="firstname" required="required">
+        <br>
+        <br>
+        <h3>Lastname:</h3>
+        <input type="text" name="lastname" required="required">
+        <br>
+        <br>
+        <h3>Username:</h3>
+        <input type="text" name="username" required="required">
+        <br>
+        <br>
+        <h3>Password:</h3>
+        <input type="password" name="password" required="required">
+        <br>
+        <br>
+        <h3>Email:</h3>
+        <input type="text" name="email" required="required">
+        <br>
+        <br>
+        <h3>College:</h3>
+        <input type="text" name="college" required="required">
+        <br>
+        <br>
+        <button>Sign up</button>
+    </form>
+    <% if(message) { %>
+        <h3><%= message %></h3>
+    <% } %>
+    </body>
+</html>

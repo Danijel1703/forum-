@@ -1,14 +1,17 @@
 const express = require('express');
 const router = express.Router();
-const LoginController = require('./../controllers/LoginController');
-const PostsController = require('./../controllers/PostsController');
+const LoginController = require('../controllers/LoginController');
+const PostsController = require('../controllers/PostsController');
 const SignupController = require('../controllers/SignupController');
+const HomeController = require('../controllers/HomeController');
 const { route } = require('../app');
-const verify = require('./../verifyToken');
+const verify = require('../verifyToken');
 
-router.route('/signup').post(SignupController.newUser);
-router.route('/login').post(LoginController.authentication);
-router.route('/posts').get(PostsController.getAllPosts);
+router.route('/').get(HomeController.viewHome);
+router.route('/home').get(HomeController.viewHome);
+router.route('/signup').get(SignupController.viewSignup).post(SignupController.newUser);
+router.route('/login').get(LoginController.viewLogin).post(LoginController.authentication);
+router.route('/posts').get(PostsController.viewPosts);
 router.route('/posts').post(verify,PostsController.newPost);
 router.route('/posts/post/:id').delete(verify,PostsController.deletePost);
 router.route('/posts/post/:id').put(verify,PostsController.updatePost);

@@ -14,7 +14,18 @@ const PostSchema = new mongoose.Schema({
         author : {
             type : String,
             required : true
-        }
+        },
+        comments : [{
+                    author : {
+                            type : String,    
+                            required : true
+                    },
+                    content : {
+                            type : String,
+                            required : true
+                    }           
+        }]
+        
 });
 
 mongoose.model('Post',PostSchema);

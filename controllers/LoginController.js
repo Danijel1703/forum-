@@ -1,51 +1,41 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const User = require('./../models/UserModel');
-const session = require('express-session');
-const { use } = require('../routes/postsRoutes');
-exports.getAllUsers = async (req,res) => {
-    
-    const allUsers = await User.find();
-    res.status(200).json({
-        users: {
-            allUsers
-        }
-    });
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const ValidationController = require('./ValidationController');
 
-}
+const authentication = async (req,res) => {
 
-exports.authentication = async (req,res) => {
-
-        try{
-
-            const allUsers = await User.find();
-            const username = req.body.username;
-            const password = req.body.password;
-            let logged = false;
-            for(const user of allUsers){
-                
-                if(username == user.username && password == user.password)
-                {
-                    logged = true;
-                    res.cookie('user',user.username).send();
-                    break;
-                }
-
-            };
-            if(logged == true)
-            {                   
-                res.json({
-                    status : "Login successful",
-                    active: cookie.user.username
+        try {
+            const {error} = ValidationController.loginValidation(req.body);
+            if(error){
+                res.status(400).json({
+                    error : error.message
                 });
-                res.send(cookie.user.username);
-            }else{
-                res.json({
-                    status : "Login failed invalid username or password"
-                })
             }
-
-        }catch(err){
-            
+            const user = await User.findOne({username : req.body.username});
+            if(!user){
+                res.status(400).send('User not found.');
+            }
+            const validPass = await bcrypt.compare(req.body.password,user.password);
+            if(validPass){
+                const token = jwt.sign({_id : user._id},process.env.TOKEN_SECRET);
+                res.cookie('login-token',token);
+                res.cookie('currentUser',user.username);
+                res.send(`Welcome ${user.username}`);
+            }else if(!validPass){
+                res.send('Password incorrect.');
+            }
+        } catch (err) {
+            res.status(400).send(err.message);
         }
 }
+
+const logout = (req,res) => {
+    res.clearCookie('currentUser');
+    res.send('You have been logged out.');
+}
+
+module.exports.authentication = authentication;
+module.exports.logout = logout;

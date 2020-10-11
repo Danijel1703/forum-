@@ -1,10 +1,9 @@
-const session = require('express-session');
 const express = require('express');
 const mongoose = require('mongoose');
 const Post = require('./../models/PostModel');
 const { json } = require('body-parser');
-const { update } = require('./../models/PostModel');
-exports.getAllPosts = async (req,res) => {
+const { update, findByIdAndDelete, findByIdAndUpdate } = require('./../models/PostModel');
+const getAllPosts = async (req,res) => {
     try {
         const allPosts = await Post.find();
         res.status(200).json({
@@ -13,93 +12,102 @@ exports.getAllPosts = async (req,res) => {
             }
         });
     }catch(err){
-        
     }
 }
-exports.newPost = async (req,res) => {
-            
+const newPost = async (req,res) => {
+
         try {
-            const postAuthor = req.cookies.user;
             const newPost = await Post.create({
                 title : req.body.title,
                 content : req.body.content,
-                author : postAuthor
+                author : req.cookies['currentUser']
                 });
-                res.status(200).json({
-                    status : "successful"
-                });
-            
+                res.status(200).send('Successful');
         }catch (err){
-            res.status(400).json({
-                status : "failed",  
-                message : "Please log in first!"
-            });
-        }
+            res.status(400).send(err.message);
+    }
     
 }
-exports.deletePost = async (req,res) => {
+const deletePost = async (req,res) => {
         try {
-            let deleted = false;
-            const allPosts = await Post.find();
             const id = req.params.id;
-            for(const post of allPosts){
-                if(post.id == id){
-                    if(post.author == req.cookies.user){
-                        await Post.deleteOne(post);
-                        res.json({
-                            status : "deleted"
-                        });
-                        deleted = true;
-                    }else {
-                        res.json({
-                            status : "Failed, you are not the author"
-                        });
-                    }
-                    break;
-                }else{
-                    deleted = false;
-                }
-            }
-            if(deleted == false){
-                    res.json({
-                        status : "failed, invalid id"
-                    });
-                }
-            
+            const postExists = await Post.findById(id);
+            if(req.cookies['currentUser'] == postExists.author){
+            const deletePost = await Post.findByIdAndDelete(id);
+            res.status(400).send('Successful');
+            }else{
+                res.send('You are not the author.');
+            }    
         }catch (err){
-            
+            res.status(400).send('Invalid ID');
         }
 }
 
-exports.updatePost = async (req,res) => {
+const updatePost = async (req,res) => {
         try {
-            const allPosts = await Post.find();
-            let updated = false;
             const id = req.params.id;
-            for(const post of allPosts){
-                if(post.id == id){
-                    if(post.author == req.cookies.user){
-                        await Post.updateOne(req.body);
-                        updated = true;
-                        res.json({
-                            status : "update completed"
-                        });
-                        break;
-                        }else{
-                        res.json({
-                            status : "failed, you are not the author"
-                        });
-                    }
-                }else{
-                    updated = false;
-                }
-            }
-            if(updated == false){
-                res.json({
-                    status : "failed, invalid id"
-                });
-            }
+            const postExists = await Post.findById(id);
+            if(req.cookies['currentUser'] == postExists.author){
+            const updatePost = await Post.findByIdAndUpdate(id,{
+                title : req.body.title,
+                content : req.body.content
+            });
+            res.send('Post updated');
+        }else{
+            res.send('You are not the author.');
+        }
         }catch (err){
-            
+            res.send('Invalid ID');
         }
 }
+
+const newComment = async (req,res) => {
+
+        try {
+            const id = req.params.id;
+            const commentPost = await Post.findByIdAndUpdate(id,{
+                $push : {
+                    comments : {
+                            author : req.cookies['currentUser'],
+                            content  : req.body.comments.comment.content
+                    }
+                }
+            });
+            res.send('Comment added');
+        }catch (err) {
+            res.send('Invalid ID');
+        }
+
+}
+
+const updateComment = async (req,res) => {
+
+    try {
+        const id = req.params.commentId;
+        console.log(id);
+        console.log(commentExists);
+        if(commentExists.author == req.cookies['currentUser']){
+        const commentPost = await Post.findByIdAndUpdate(id,{
+            $push : {
+                comments : {
+                        author : req.cookies['currentUser'],
+                        content  : req.body.comments.comment.content
+                }
+            }
+        });
+        res.send('Comment updated');
+    }else{
+        res.send('You are not the author.');
+    }
+    }catch (err) {
+        res.send('Invalid ID');
+    }
+
+}
+
+module.exports.getAllPosts = getAllPosts;
+module.exports.newPost = newPost;
+module.exports.deletePost = deletePost;
+module.exports.updatePost = updatePost;
+module.exports.newComment = newComment;
+module.exports.updateComment = updateComment;

@@ -4,6 +4,7 @@ const UserSchema = new mongoose.Schema ({
 
         firstname : {
                 type : String,
+                min : 6,
                 required : true
         },
         lastname : {
@@ -12,10 +13,12 @@ const UserSchema = new mongoose.Schema ({
         },
         username : {
                 type : String,
+                min : 6,
                 required : true
         },
         password : {
                 type : String,
+                min : 6,
                 required : true
         },
         email : {
@@ -25,7 +28,34 @@ const UserSchema = new mongoose.Schema ({
         college : {
                 type : String,
                 required : true
-        }
+        },
+        role : {
+                type : String,
+                default : 'user'
+        },
+        posts : [{
+                post : {
+                        author : {
+                                type : String      
+                        },
+                        content : {
+                                type : String,
+                                default : 'none'
+                        }       
+                }        
+        }],
+        comments : [{
+                comment : {
+                        author : {
+                                type : String      
+                        },
+                        content : {
+                                type : String,
+                                required : true,
+                                default : 'none'
+                        }       
+                }        
+        }]
 
 });
 

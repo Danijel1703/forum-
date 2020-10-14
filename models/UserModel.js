@@ -34,27 +34,30 @@ const UserSchema = new mongoose.Schema ({
                 default : 'user'
         },
         posts : [{
-                post : {
-                        author : {
-                                type : String      
-                        },
-                        content : {
-                                type : String,
-                                default : 'none'
-                        }       
-                }        
+                
+                author : {
+                        type : String      
+                },
+                title : {
+                        type : String
+                },
+                content : {
+                        type : String,
+                        default : 'none'
+                }       
+                    
         }],
         comments : [{
-                comment : {
-                        author : {
-                                type : String      
-                        },
-                        content : {
-                                type : String,
-                                required : true,
-                                default : 'none'
-                        }       
-                }        
+        
+                author : {
+                        type : String      
+                },
+                content : {
+                        type : String,
+                        required : true,
+                        default : 'none'
+                }               
+                     
         }]
 
 });

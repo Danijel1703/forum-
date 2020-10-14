@@ -5,16 +5,13 @@ module.exports = function (req,res,next) {
     const currentUser = req.cookies['currentUser'];
    
     if(!token){
-        res.status(401).send('Access Denied');
+        res.status(401).send('You must log in first!');
+        next();
     }
     try{
         const verified = jwt.verify(token,process.env.TOKEN_SECRET);
         req.user = verified;
-        if(!currentUser){
-            res.send('You must log in first!');
-        }else{
-            next();
-        }
+        next();
     }catch(err){
         
     }

@@ -16,14 +16,16 @@ const PostSchema = new mongoose.Schema({
             required : true
         },
         comments : [{
-                    author : {
-                            type : String,    
-                            required : true
-                    },
-                    content : {
-                            type : String,
-                            required : true
-                    }           
+            comments : {
+                author : {
+                    type : String,    
+                    required : true
+                },
+                content : {
+                    type : String,
+                    required : true
+                }     
+            }      
         }]
         
 });
